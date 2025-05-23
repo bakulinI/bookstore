@@ -1,0 +1,35 @@
+.idea
+venv
+.env
+# .gitignore for Django Projects
+token.txt
+# Python-specific
+*.pyc
+*.pyo
+__pycache__/
+# IntellijIdea files
+*.iml
+out
+# Database
+*.sqlite3
+# Development/Debugging
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+
+# Django migrations
+/migrations/
+
+# Ignore local settings
+/local_settings.py

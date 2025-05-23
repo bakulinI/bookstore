@@ -1,0 +1,196 @@
+{% extends 'bookstore/base.html' %}
+{% load static %}
+
+{% block title %}Корзина — Book Store{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Корзина</h2>
+
+    {% if cart_items %}
+        <div class="row">
+            <!-- Список товаров -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        {% for item in cart_items %}
+                            <div class="cart-item mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                                <div class="row align-items-center">
+                                    <!-- Обложка книги -->
+                                    <div class="col-2">
+                                        {% if item.book.bookcover_set.first %}
+                                            <img src="{% static item.book.bookcover_set.first.image_path %}" class="img-fluid rounded book-cover-cart" alt="{{ item.book.title }}">
+                                        {% else %}
+                                            <img src="{% static 'images/default_book.jpg' %}" class="img-fluid rounded book-cover-cart" alt="{{ item.book.title }}">
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Информация о книге -->
+                                    <div class="col-4">
+                                        <h5 class="mb-1">{{ item.book.title }}</h5>
+                                        <p class="text-muted mb-0">{{ item.book.author }}</p>
+                                    </div>
+                                    
+                                    <!-- Количество -->
+                                    <div class="col-3">
+                                        <form method="post" action="{% url 'cart' %}" class="d-flex align-items-center">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="book_id" value="{{ item.book.id }}">
+                                            <div class="input-group input-group-sm">
+                                                <button type="submit" name="action" value="decrease" class="btn btn-outline-secondary">-</button>
+                                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control text-center" readonly>
+                                                <button type="submit" name="action" value="increase" class="btn btn-outline-secondary">+</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Цена и удаление -->
+                                    <div class="col-3 text-end">
+                                        <p class="mb-1"><strong>{{ item.subtotal }} руб.</strong></p>
+                                        <form method="post" action="{% url 'cart' %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="book_id" value="{{ item.book.id }}">
+                                            <button type="submit" name="action" value="remove" class="btn btn-link text-danger p-0">
+                                                <small>Удалить</small>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Итого и оформление заказа -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Итого</h5>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Товары ({{ cart_items|length }})</span>
+                            <span><strong>{{ total }} руб.</strong></span>
+                        </div>
+                        {% if not user.role == 'admin' %}
+                        <button type="button" class="btn btn-brown w-100" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+                            Оформить заказ
+                        </button>
+                        {% endif %}
+                        <a href="{% url 'catalog' %}" class="btn btn-outline-secondary w-100 mt-2">
+                            Продолжить покупки
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно деталей заказа -->
+        <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="checkoutModalLabel">Детали заказа</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Информация о пользователе -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title mb-3">Информация о покупателе</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Имя пользователя:</strong> {{ user.username }}</p>
+                                        <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Состав заказа -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title mb-3">Состав заказа</h6>
+                                {% for item in cart_items %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <h6 class="mb-0">{{ item.book.title }}</h6>
+                                            <small class="text-muted">{{ item.book.author }}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="d-block">{{ item.quantity }} шт.</span>
+                                            <strong>{{ item.subtotal }} руб.</strong>
+                                        </div>
+                                    </div>
+                                    {% if not forloop.last %}<hr class="my-2">{% endif %}
+                                {% endfor %}
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Итого:</h5>
+                                    <h5 class="mb-0">{{ total }} руб.</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        {% if not user.role == 'admin' %}
+                        <button type="button" class="btn btn-brown" id="submitOrder">
+                            <i class="fas fa-check me-2"></i>Подтвердить заказ
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <img src="{% static 'images/empty_cart.jpg' %}" alt="Пустая корзина" class="mb-4" style="max-width: 200px;">
+            <h4>Ваша корзина пуста</h4>
+            <p class="text-muted">Добавьте книги из каталога, чтобы сделать заказ</p>
+            <a href="{% url 'catalog' %}" class="btn btn-brown mt-3">
+                Перейти в каталог
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const submitOrderBtn = document.getElementById('submitOrder');
+    
+    if (submitOrderBtn) {
+        submitOrderBtn.addEventListener('click', function() {
+            fetch('{% url "checkout" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Закрываем модальное окно
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
+                    modal.hide();
+                    
+                    // Показываем сообщение об успехе
+                    alert('Заказ успешно оформлен!');
+                    
+                    // Перенаправляем на страницу заказа
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(data.error || 'Произошла ошибка при оформлении заказа');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при оформлении заказа');
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'bookstore/base.html' %}
+
+{% block title %}{{ book.title }} — Book Store{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Обложка книги -->
+        <div class="col-md-4">
+            <div class="card">
+                {% if book.bookcover_set.first %}
+                <img src="{% static book.bookcover_set.first.image_path %}" class="card-img-top" alt="{{ book.title }}">
+                {% else %}
+                <img src="{% static 'images/default_book.jpg' %}" class="card-img-top" alt="{{ book.title }}">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Информация о книге -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">{{ book.title }}</h5>
+                    <h5 class="text-muted mb-4">{{ book.author }}</h5>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Жанр</h6>
+                        <p class="mb-0">{{ book.genre }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Описание</h6>
+                        <p class="mb-0">{{ book.description }}</p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ book.price }} руб.</h4>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'catalog' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>В каталог
+                            </a>
+                            {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'add_to_cart' book.id %}" class="d-inline">
+                                {% csrf_token %}
+                                {% if not user.role == 'admin' %}
+                                <button type="submit" class="btn btn-brown">
+                                    <i class="fas fa-shopping-cart me-2"></i>В корзину
+                                </button>
+                                {% endif %}
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Форма оценки книги -->
+            {% if user.is_authenticated and not user.role == 'admin' %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Оценить книгу</h5>
+                    <form method="post" action="{% url 'rate_book' book.id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% for i in "12345"|make_list %}
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="rating" id="rating{{ i }}" value="{{ i }}">
+                                <label class="form-check-label" for="rating{{ i }}">{{ i }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Отправить оценку</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Статистика книги -->
+            {% if stats %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Статистика</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h6 class="text-muted mb-2">Просмотры</h6>
+                                <h4>{{ stats.views }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h6 class="text-muted mb-2">Рейтинг</h6>
+                                <h4>{{ stats.average_rating|floatformat:1 }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
