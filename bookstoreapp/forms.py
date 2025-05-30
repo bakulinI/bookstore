@@ -19,7 +19,7 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 class BookForm(forms.ModelForm):
-    image_path = forms.ChoiceField(required=False, label='Обложка книги')
+    image = forms.FileField(required=False, label='Обложка книги', widget=forms.FileInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Book
@@ -29,25 +29,22 @@ class BookForm(forms.ModelForm):
             'price': forms.NumberInput(attrs={'min': 0}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Получаем список всех изображений из папки static/images
-        images_dir = os.path.join(settings.STATICFILES_DIRS[0], 'images')
-        image_files = []
-        
-        if os.path.exists(images_dir):
-            for file in os.listdir(images_dir):
-                if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-                    image_files.append((f'images/{file}', file))
-        
-        self.fields['image_path'].choices = [('', 'Выберите изображение')] + image_files
-
     def save(self, commit=True):
         book = super().save(commit=commit)
-        if self.cleaned_data.get('image_path'):
+        if self.cleaned_data.get('image'):
+            image = self.cleaned_data['image']
+            filename = f"images/{book.id}_{image.name}"
+
+            static_dir = os.path.join(settings.STATICFILES_DIRS[0], 'images')
+            os.makedirs(static_dir, exist_ok=True)
+            
+            with open(os.path.join(static_dir, f"{book.id}_{image.name}"), 'wb+') as destination:
+                for chunk in image.chunks():
+                    destination.write(chunk)
+
             BookCover.objects.create(
                 book=book,
-                image_path=self.cleaned_data['image_path']
+                image_path=filename
             )
         return book
 
@@ -61,7 +58,7 @@ class BookCoverForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Получаем список всех изображений из папки static/images
+        #список всех изображений из папки static/images
         images_dir = os.path.join(settings.STATICFILES_DIRS[0], 'images')
         image_files = []
         

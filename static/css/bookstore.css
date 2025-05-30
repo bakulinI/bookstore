@@ -70,7 +70,6 @@ footer {
     color: #007bff;
 }
 
-/* Catalog Button Style */
 .catalog-button-style {
     background-color: #8B4513;
     border-color: #8B4513;
@@ -88,15 +87,16 @@ footer {
     z-index: 1000;
 }
 
-/* Brown Button Style */
 .btn-brown {
     background-color: #8B4513;
     border-color: #8B4513;
+    color: white;
 }
 
 .btn-brown:hover {
-    background-color: #a0522d; /* Чуть светлее для эффекта наведения */
+    background-color: #a0522d;
     border-color: #a0522d;
+    color: white;
 }
 
 .btn-brown:focus,
@@ -106,20 +106,20 @@ footer {
 
 /* Beige Button Style */
 .btn-beige {
-    background-color: #F5F5DC; /* Бежевый фон */
-    border-color: #D2B48C; /* Коричневая рамка */
-    color: #333; /* Темный текст для читаемости */
+    background-color: #F5F5DC;
+    border-color: #D2B48C;
+    color: #333;
 }
 
 .btn-beige:hover {
-    background-color: #E6E6D3; /* Чуть темнее бежевый на наведении */
-    border-color: #C1A17D; /* Темнее рамка на наведении */
+    background-color: #E6E6D3;
+    border-color: #C1A17D;
     color: #333;
 }
 
 /* Beige Text Color */
 .text-beige {
-    color: #A0522D; /* Используем оттенок коричневого/бежевого */
+    color: #A0522D;
 }
 
 /* Hero Banner */
@@ -251,10 +251,10 @@ footer {
     }
 }
 .book-cover-cart {
-    width: 50px; /* Маленький размер */
-    height: 70px; /* Сохраняем пропорции */
-    object-fit: cover; /* Обрезаем изображение, чтобы оно помещалось */
-    margin-right: 10px; /* Отступ справа */
+    width: 50px;
+    height: 70px;
+    object-fit: cover;
+    margin-right: 10px;
 }
 
 /* Cart Styles */
@@ -277,4 +277,4 @@ footer {
 
 .input-group .btn {
     z-index: 0;
-}  
+}

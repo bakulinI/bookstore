@@ -3,8 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from decimal import Decimal
 
-# Create your models here.
-
 class User(AbstractUser):
     username = models.CharField(verbose_name='Имя пользователя', max_length=150, null=False, unique=True)
     email = models.EmailField(unique=True, null=True, default=None, blank=True)

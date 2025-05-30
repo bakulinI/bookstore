@@ -15,7 +15,7 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         {% for field in form %}
@@ -23,9 +23,7 @@
                             <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                             {{ field.errors }}
                             
-                            {# Проверяем, если это не поле обложки #}
-                            {% if field.name != 'image_path' %}
-                                {# Вручную рендерим поле ввода для остальных полей #}
+                            {% if field.name != 'image' %}
                                 {% if field.field.widget.input_type == 'textarea' %}
                                     <textarea name="{{ field.name }}" 
                                               id="{{ field.id_for_label }}" 
@@ -49,26 +47,27 @@
                                            {% if field.field.required %}required{% endif %}
                                            {% if field.value %}value="{{ field.value|stringformat:'s' }}"{% endif %}>
                                 {% endif %}
-                                
                             {% else %}
-                                {# Оставляем рендеринг поля обложки как было #}
-                                <div class="input-group">
+                                <div class="input-group w-100">
                                     {{ field }}
-                                    <span class="input-group-text">
-                                        <i class="fas fa-image"></i>
-                                    </span>
                                 </div>
-                                <div class="form-text">Выберите изображение из папки static/images</div>
+                                <div class="form-text">Выберите изображение</div>
+                                {% if book.bookcover_set.first %}
+                                <div class="mt-2">
+                                    <p class="mb-1">Текущая обложка:</p>
+                                    <img src="{% static book.bookcover_set.first.image_path %}" alt="{{ book.title }}" style="max-width: 150px; height: auto;">
+                                </div>
+                                {% endif %}
                             {% endif %}
                             
-                            {% if field.help_text and field.name != 'image_path' %}
+                            {% if field.help_text and field.name != 'image' %}
                             <div class="form-text">{{ field.help_text }}</div>
                             {% endif %}
                         </div>
                         {% endfor %}
                         
                         <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                            <button type="submit" class="btn" style="background-color: #8B4513; color: white;">Сохранить изменения</button>
                         </div>
                     </form>
                 </div>

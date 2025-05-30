@@ -216,13 +216,13 @@ def admin_dashboard(request):
         return redirect('home')
         
     books = Book.objects.all()
-    orders = Order.objects.all().order_by('-created_at') # Получаем все заказы, сортируя по дате создания
-    total_orders = orders.count() # Считаем общее количество из полученного QuerySet
+    orders = Order.objects.all().order_by('-created_at') # все заказы по дате создания
+    total_orders = orders.count() # общее количество
     total_users = User.objects.count()
 
     return render(request, 'bookstore/admin/dashboard.html', {
         'books': books,
-        'orders': orders, # Передаем список заказов в контекст
+        'orders': orders,
         'total_orders': total_orders,
         'total_users': total_users
     })
@@ -251,7 +251,7 @@ def export_book_stats(request):
 def catalog_view(request):
     books = Book.objects.all()
     
-    # Получаем параметры фильтрации и сортировки
+    # параметры фильтрации и сортировки
     query = request.GET.get('query')
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
@@ -306,7 +306,7 @@ def add_book(request):
         return redirect('home')
         
     if request.method == 'POST':
-        form = BookForm(request.POST)
+        form = BookForm(request.POST, request.FILES)
         if form.is_valid():
             book = form.save()
             messages.success(request, f'Книга "{book.title}" успешно добавлена')
@@ -369,7 +369,7 @@ def edit_book(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     
     if request.method == 'POST':
-        form = BookForm(request.POST, instance=book)
+        form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
             form.save()
             messages.success(request, f'Книга "{book.title}" успешно обновлена')

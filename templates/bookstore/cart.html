@@ -175,10 +175,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
                     modal.hide();
                     
-                    // Показываем сообщение об успехе
+                    // сообщение об успехе
                     alert('Заказ успешно оформлен!');
                     
-                    // Перенаправляем на страницу заказа
+                    // перенаправление на страницу заказа
                     window.location.href = data.redirect_url;
                 } else {
                     alert(data.error || 'Произошла ошибка при оформлении заказа');
